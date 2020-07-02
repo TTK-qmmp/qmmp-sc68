@@ -38,25 +38,26 @@ DecoderProperties DecoderSC68Factory::properties() const
     return properties;
 }
 
-Decoder *DecoderSC68Factory::create(const QString &path, QIODevice *)
+Decoder *DecoderSC68Factory::create(const QString &path, QIODevice *input)
 {
+    Q_UNUSED(input);
     return new DecoderSC68(path);
 }
 
-QList<TrackInfo *> DecoderSC68Factory::createPlayList(const QString &path, TrackInfo::Parts parts, QStringList *)
+QList<TrackInfo*> DecoderSC68Factory::createPlayList(const QString &path, TrackInfo::Parts parts, QStringList *)
 {
     TrackInfo *info = new TrackInfo(path);
 
-    if(parts == TrackInfo::NoParts)
+    if(parts == TrackInfo::Parts())
     {
-        return QList<TrackInfo *>() << info;
+        return QList<TrackInfo*>() << info;
     }
 
     SC68Helper helper(path);
     if(!helper.initialize())
     {
         delete info;
-        return QList<TrackInfo *>();
+        return QList<TrackInfo*>();
     }
 
     if(parts & TrackInfo::MetaData)
@@ -76,13 +77,15 @@ QList<TrackInfo *> DecoderSC68Factory::createPlayList(const QString &path, Track
         info->setValue(Qmmp::SAMPLERATE, helper.samplerate());
         info->setValue(Qmmp::CHANNELS, helper.channels());
         info->setValue(Qmmp::BITS_PER_SAMPLE, helper.bitsPerSample());
+        info->setValue(Qmmp::FORMAT_NAME, "sc68");
         info->setDuration(helper.totalTime());
     }
 
-    return QList<TrackInfo *>() << info;
+    return QList<TrackInfo*>() << info;
 }
 
-MetaDataModel* DecoderSC68Factory::createMetaDataModel(const QString &path, bool)
+MetaDataModel* DecoderSC68Factory::createMetaDataModel(const QString &path, bool readOnly)
 {
+    Q_UNUSED(readOnly);
     return new SC68MetaDataModel(path);
 }

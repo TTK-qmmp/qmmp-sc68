@@ -103,7 +103,7 @@ bool SC68Helper::initialize()
 
     const int64_t size = stdio_length(file);
     stdio_close(file);
- 
+
     m_info->sc68 = sc68_create(nullptr);
     if(!m_info->sc68)
     {
