@@ -1,6 +1,6 @@
 /* =================================================
  * This file is part of the TTK qmmp plugin project
- * Copyright (C) 2015 - 2020 Greedysky Studio
+ * Copyright (C) 2015 - 2021 Greedysky Studio
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ class SC68MetaDataModel : public MetaDataModel
 {
     Q_DECLARE_TR_FUNCTIONS(SC68MetaDataModel)
 public:
-    SC68MetaDataModel(const QString &path);
+    explicit SC68MetaDataModel(const QString &path);
     virtual ~SC68MetaDataModel();
 
     virtual QList<TagModel* > tags() const override;
@@ -35,12 +35,13 @@ public:
 private:
     QList<TagModel* > m_tags;
     SC68Helper* m_sc68;
+
 };
 
 class SC68FileTagModel : public TagModel
 {
 public:
-    SC68FileTagModel(SC68Helper* sc68);
+    explicit SC68FileTagModel(SC68Helper* sc68);
     virtual ~SC68FileTagModel();
 
     virtual QString name() const override;
@@ -50,6 +51,7 @@ public:
 
 private:
     SC68Helper* m_sc68;
+
 };
 
 #endif // SC68METADATAMODEL_H

@@ -1,21 +1,3 @@
-/* =================================================
- * This file is part of the TTK qmmp plugin project
- * Copyright (C) 2015 - 2020 Greedysky Studio
-
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License along
- * with this program; If not, see <http://www.gnu.org/licenses/>.
- ================================================= */
-
 #include "sc68helper.h"
 
 void in_c68_meta_from_music_info(QVariantMap &data, sc68_music_info_t *ti, int trk)
@@ -69,11 +51,11 @@ void in_c68_meta_from_music_info(QVariantMap &data, sc68_music_info_t *ti, int t
     data.insert("track", trk);
 }
 
+
 SC68Helper::SC68Helper(const QString &path)
+    : m_path(path)
 {
-    m_path = path;
     m_info = (sc68_info_t*)calloc(sizeof(sc68_info_t), 1);
-    m_totalTime = 0;
 }
 
 SC68Helper::~SC68Helper()
@@ -83,37 +65,37 @@ SC68Helper::~SC68Helper()
 
 void SC68Helper::close()
 {
-    if(m_info) 
+    if(m_info->sc68)
     {
-        if(m_info->sc68)
-        {
-            sc68_destroy(m_info->sc68);
-        }
-        free(m_info);
+        sc68_destroy(m_info->sc68);
     }
+    free(m_info);
 }
 
 bool SC68Helper::initialize()
 {
-    FILE *file = stdio_open(m_path.toLocal8Bit().constData());
+    FILE *file = stdio_open(qPrintable(m_path));
     if(!file)
     {
+        qWarning("SC68Helper: open file failed");
         return false;
     }
 
     const int64_t size = stdio_length(file);
     stdio_close(file);
 
+    sc68_init(nullptr);
     m_info->sc68 = sc68_create(nullptr);
     if(!m_info->sc68)
     {
+        qWarning("SC68Helper: sc68_create error");
         return false;
     }
 
-    // Load an sc68 file.
-    int res = sc68_load_uri(m_info->sc68, m_path.toLocal8Bit().constData());
+    int res = sc68_load_uri(m_info->sc68, qPrintable(m_path));
     if(res)
     {
+        qWarning("SC68Helper: sc68_load_uri error");
         return false;
     }
 
@@ -123,22 +105,23 @@ bool SC68Helper::initialize()
     res = sc68_music_info(m_info->sc68, &info, m_info->trk + 1, 0);
     if(res < 0)
     {
+        qWarning("SC68Helper: sc68_music_info error");
         return false;
     }
 
-    m_info->loop = info.trk.time_ms == 0;
+    m_info->loop = (info.trk.time_ms == 0);
+
     if(info.trk.time_ms > 0)
     {
-        m_info->totalsamples = (uint64_t)info.trk.time_ms * samplerate() / 1000;
+        m_info->totalsamples = (uint64_t)info.trk.time_ms * sampleRate() / 1000;
     }
     else
     {
-        m_info->totalsamples = 2 * 60 * samplerate();
+        m_info->totalsamples = 2 * 60 * sampleRate();
     }
 
-    m_totalTime = m_info->totalsamples / samplerate();
-    m_info->bitrate = size * 8.0 / m_totalTime;
-    m_info->readpos = 0;
+    m_totalTime = m_info->totalsamples / sampleRate() * 1000;
+    m_info->bitrate = size * 8.0 / m_totalTime + 1.0f;
 
     sc68_play(m_info->sc68, m_info->trk + 1, m_info->loop);
 
@@ -152,7 +135,7 @@ int SC68Helper::totalTime() const
 
 void SC68Helper::seek(qint64 time)
 {
-    const int sample = time * samplerate();
+    const int sample = time * sampleRate() / 1000;
     if(sample < m_info->currentsample)
     {
         sc68_stop(m_info->sc68);
@@ -164,15 +147,14 @@ void SC68Helper::seek(qint64 time)
     while(m_info->currentsample < sample)
     {
         int sz = (int)(sample - m_info->currentsample);
-        sz = MIN(sz, sizeof(buffer)>>2);
-        int res = sc68_process(m_info->sc68, buffer, &sz);
-        if(res & SC68_END)
+        sz = MIN(sz, sizeof(buffer) >> 2);
+
+        if(sc68_process(m_info->sc68, buffer, &sz) & SC68_END)
         {
             break;
         }
         m_info->currentsample += sz;
     }
-    m_info->readpos = (float)m_info->currentsample / samplerate();
 }
 
 int SC68Helper::bitrate() const
@@ -180,7 +162,7 @@ int SC68Helper::bitrate() const
     return m_info->bitrate;
 }
 
-int SC68Helper::samplerate() const
+int SC68Helper::sampleRate() const
 {
     return 44100;
 }
@@ -207,22 +189,21 @@ int SC68Helper::read(unsigned char *buf, int size)
 
     while(size > 0)
     {
-        int n = size>>2;
-        int res = sc68_process(m_info->sc68, buf, &n);
-        if(res & SC68_END)
+        int n = size >> 2;
+        if(sc68_process(m_info->sc68, buf, &n) & SC68_END)
         {
             break;
         }
-        size -= n<<2;
+        size -= n << 2;
     }
+
     return initsize - size;
 }
 
 QVariantMap SC68Helper::readMetaTags()
 {
     sc68_music_info_t info;
-    int err = sc68_music_info(m_info->sc68, &info, 0, 0);
-    if(err < 0)
+    if(sc68_music_info(m_info->sc68, &info, 0, 0) < 0)
     {
         return m_meta;
     }
@@ -231,8 +212,7 @@ QVariantMap SC68Helper::readMetaTags()
     {
         sc68_music_info_t ti;
         memset(&ti, 0, sizeof(ti));
-        err = sc68_music_info(m_info->sc68, &ti, tr + 1, 0);
-        if(err < 0)
+        if(sc68_music_info(m_info->sc68, &ti, tr + 1, 0) < 0)
         {
             continue;
         }

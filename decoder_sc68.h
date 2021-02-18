@@ -1,6 +1,6 @@
 /* =================================================
  * This file is part of the TTK qmmp plugin project
- * Copyright (C) 2015 - 2020 Greedysky Studio
+ * Copyright (C) 2015 - 2021 Greedysky Studio
 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ class SC68Helper;
 class DecoderSC68 : public Decoder
 {
 public:
-    DecoderSC68(const QString &path);
+    explicit DecoderSC68(const QString &path);
     virtual ~DecoderSC68();
 
     // Standard Decoder API
@@ -41,6 +41,7 @@ public:
 
 private:
     SC68Helper* m_sc68;
+
 };
 
 #endif // DECODER_SC68_H

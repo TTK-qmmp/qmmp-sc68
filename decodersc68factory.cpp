@@ -1,21 +1,3 @@
-/* =================================================
- * This file is part of the TTK qmmp plugin project
- * Copyright (C) 2015 - 2020 Greedysky Studio
-
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
-
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
-
- * You should have received a copy of the GNU General Public License along
- * with this program; If not, see <http://www.gnu.org/licenses/>.
- ================================================= */
-
 #include "sc68helper.h"
 #include "decoder_sc68.h"
 #include "decodersc68factory.h"
@@ -30,7 +12,7 @@ DecoderProperties DecoderSC68Factory::properties() const
 {
     DecoderProperties properties;
     properties.name = tr("SC68 Plugin");
-    properties.filters << "*.sndh" << "*.snd" << "*.sc68";
+    properties.filters << "*.sc68";
     properties.description = tr("Atari ST(E) And Amiga Audio Files");
     properties.shortName = "sc68";
     properties.noInput = true;
@@ -74,10 +56,10 @@ QList<TrackInfo*> DecoderSC68Factory::createPlayList(const QString &path, TrackI
     if(parts & TrackInfo::Properties)
     {
         info->setValue(Qmmp::BITRATE, helper.bitrate());
-        info->setValue(Qmmp::SAMPLERATE, helper.samplerate());
+        info->setValue(Qmmp::SAMPLERATE, helper.sampleRate());
         info->setValue(Qmmp::CHANNELS, helper.channels());
         info->setValue(Qmmp::BITS_PER_SAMPLE, helper.bitsPerSample());
-        info->setValue(Qmmp::FORMAT_NAME, "sc68");
+        info->setValue(Qmmp::FORMAT_NAME, "SC68");
         info->setDuration(helper.totalTime());
     }
 
