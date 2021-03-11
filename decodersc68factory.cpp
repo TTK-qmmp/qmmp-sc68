@@ -3,6 +3,8 @@
 #include "decodersc68factory.h"
 #include "sc68metadatamodel.h"
 
+#include <QMessageBox>
+
 bool DecoderSC68Factory::canDecode(QIODevice *) const
 {
     return false;
@@ -70,4 +72,21 @@ MetaDataModel* DecoderSC68Factory::createMetaDataModel(const QString &path, bool
 {
     Q_UNUSED(readOnly);
     return new SC68MetaDataModel(path);
+}
+
+void DecoderSC68Factory::showSettings(QWidget *parent)
+{
+    Q_UNUSED(parent);
+}
+
+void DecoderSC68Factory::showAbout(QWidget *parent)
+{
+    QMessageBox::about (parent, tr("About SC68 Reader Plugin"),
+                        tr("Qmmp SC68 Reader Plugin")+"\n"+
+                        tr("Written by: Greedysky <greedysky@163.com>"));
+}
+
+QString DecoderSC68Factory::translation() const
+{
+    return QString();
 }
