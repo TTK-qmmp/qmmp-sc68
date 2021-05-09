@@ -6,7 +6,6 @@ TARGET = $$PLUGINS_PREFIX/Input/sc68
 HEADERS += decodersc68factory.h \
            decoder_sc68.h \
            sc68helper.h \
-           sc68metadatamodel.h \
            file68/src/replay.inc.h \
            file68/src/timedb.inc.h \
            file68/sc68/file68_vfs_ao.h \
@@ -86,7 +85,6 @@ HEADERS += decodersc68factory.h \
 SOURCES += decodersc68factory.cpp \
            decoder_sc68.cpp \
            sc68helper.cpp \
-           sc68metadatamodel.cpp \
            file68/src/gzip68.c \
            file68/src/vfs68.c \
            file68/src/ice68.c \
