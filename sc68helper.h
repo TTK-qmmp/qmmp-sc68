@@ -27,12 +27,13 @@ extern "C" {
 
 typedef struct {
     sc68_t *sc68;
-    int trk;
+    int track;
     int loop;
     int bitrate;
+    int length;
     int currentsample;
     int totalsamples;
-} sc68_info_t;
+} sc68_info;
 
 /*!
  * @author Greedysky <greedysky@163.com>
@@ -61,8 +62,7 @@ public:
 
 private:
     QString m_path;
-    sc68_info_t *m_info;
-    qint64 m_totalTime = 0;
+    sc68_info *m_info;
 
 };
 
