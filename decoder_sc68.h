@@ -40,8 +40,8 @@ public:
     virtual void seek(qint64 time) override;
 
 private:
-    SC68Helper* m_sc68;
+    SC68Helper* m_helper;
 
 };
 
-#endif // DECODER_SC68_H
+#endif

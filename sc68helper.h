@@ -20,7 +20,6 @@
 #define SC68HELPER_H
 
 extern "C" {
-#include "stdio_file.h"
 #include "sc68.h"
 }
 #include <qmmp/trackinfo.h>
@@ -44,7 +43,7 @@ public:
     explicit SC68Helper(const QString &path);
     ~SC68Helper();
 
-    void close();
+    void deinit();
 
     bool initialize();
     int totalTime() const;
