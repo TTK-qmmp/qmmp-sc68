@@ -20,19 +20,19 @@
 #define SC68HELPER_H
 
 extern "C" {
-#include "sc68.h"
+#include <libsc68/sc68/sc68.h>
 }
 #include <qmmp/trackinfo.h>
 
 typedef struct {
-    sc68_t *sc68;
+    sc68_t *input;
     int track;
     int loop;
     int bitrate;
     int length;
-    int currentsample;
-    int totalsamples;
-} sc68_info;
+    int current_sample;
+    int total_samples;
+} decode_info;
 
 /*!
  * @author Greedysky <greedysky@163.com>
@@ -61,7 +61,7 @@ public:
 
 private:
     QString m_path;
-    sc68_info *m_info;
+    decode_info *m_info;
 
 };
 
