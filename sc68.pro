@@ -84,7 +84,8 @@ DEFINES += HAVE_STDLIB_H \
            HAVE_ASSERT_H \
            HAVE_BASENAME \
            EMU68_MONOLITIC \
-           EMU68_EXPORT
+           EMU68_EXPORT \
+           USE_UNICE68
 
 unix {
     target.path = $$PLUGIN_DIR/Input
