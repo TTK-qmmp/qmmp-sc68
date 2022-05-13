@@ -1,47 +1,5 @@
 #include "sc68helper.h"
 
-#include <QFile>
-
-void meta_from_music_info(TrackInfo *info, sc68_music_info_t *ti)
-{
-    // add metainfo
-    if(!ti->title || !ti->title[0])
-    {
-        // title is empty, this call will set track title to filename without extension
-        info->setValue(Qmmp::TITLE, QString());
-    }
-    else
-    {
-        info->setValue(Qmmp::TITLE, ti->title);
-    }
-
-    if(ti->artist && ti->artist[0])
-    {
-        info->setValue(Qmmp::ARTIST, ti->artist);
-    }
-
-    if(ti->album && ti->album[0])
-    {
-        info->setValue(Qmmp::ALBUM, ti->album);
-    }
-
-    if(ti->genre && ti->genre[0])
-    {
-        info->setValue(Qmmp::GENRE, ti->genre);
-    }
-
-    if(ti->year && ti->year[0])
-    {
-        info->setValue(Qmmp::YEAR, ti->year);
-    }
-
-    if(ti->format && ti->format[0])
-    {
-        info->setValue(Qmmp::COMMENT, ti->format);
-    }
-}
-
-
 SC68Helper::SC68Helper(const QString &path)
     : m_path(path)
 {
@@ -66,16 +24,7 @@ bool SC68Helper::initialize()
     const int track = m_path.section("#", -1).toInt();
     const QString &path = cleanPath();
 
-    QFile file(path);
-    if(!file.open(QFile::ReadOnly))
-    {
-        qWarning("SC68Helper: open file failed");
-        return false;
-    }
-
-    const qint64 size = file.size();
     sc68_init(nullptr);
-
     m_input = sc68_create(nullptr);
     if(!m_input)
     {
@@ -83,16 +32,14 @@ bool SC68Helper::initialize()
         return false;
     }
 
-    int res = sc68_load_uri(m_input, qPrintable("file://" + path));
-    if(res)
+    if(sc68_load_uri(m_input, qPrintable("file://" + path)))
     {
-        qWarning("SC68Helper: sc68_load_uri error");
+        qWarning("SC68Helper: unable to open file");
         return false;
     }
 
     sc68_music_info_t info;
-    res = sc68_music_info(m_input, &info, 0, 0);
-    if(res < 0)
+    if(sc68_music_info(m_input, &info, 0, 0) < 0)
     {
         qWarning("SC68Helper: sc68_music_info error");
         return false;
@@ -117,7 +64,6 @@ bool SC68Helper::initialize()
     }
 
     m_length = m_total_samples / sampleRate() * 1000;
-    m_bitrate = size * 8.0 / totalTime() + 1.0f;
 
     sc68_play(m_input, m_track, m_loop);
     return true;
@@ -184,11 +130,11 @@ QList<TrackInfo*> SC68Helper::createPlayList(TrackInfo::Parts parts)
         return playlist;
     }
 
-    for(int i = 1; i <= info.tracks; i++)
+    for(int i = 1; i <= info.tracks; ++i)
     {
-        sc68_music_info_t ti;
-        memset(&ti, 0, sizeof(ti));
-        if(sc68_music_info(m_input, &ti, i, 0) < 0)
+        sc68_music_info_t tag;
+        memset(&tag, 0, sizeof(tag));
+        if(sc68_music_info(m_input, &tag, i, 0) < 0)
         {
             continue;
         }
@@ -196,7 +142,32 @@ QList<TrackInfo*> SC68Helper::createPlayList(TrackInfo::Parts parts)
         TrackInfo *info = new TrackInfo();
         if(parts & TrackInfo::MetaData)
         {
-            meta_from_music_info(info, &ti);
+            // add metainfo
+            if(tag.title && tag.title[0])
+            {
+                info->setValue(Qmmp::TITLE, tag.title);
+            }
+            else if(tag.artist && tag.artist[0])
+            {
+                info->setValue(Qmmp::ARTIST, tag.artist);
+            }
+            else if(tag.album && tag.album[0])
+            {
+                info->setValue(Qmmp::ALBUM, tag.album);
+            }
+            else if(tag.genre && tag.genre[0])
+            {
+                info->setValue(Qmmp::GENRE, tag.genre);
+            }
+            else if(tag.year && tag.year[0])
+            {
+                info->setValue(Qmmp::YEAR, tag.year);
+            }
+            else if(tag.format && tag.format[0])
+            {
+                info->setValue(Qmmp::COMMENT, tag.format);
+            }
+
             info->setValue(Qmmp::TRACK, i);
         }
 
@@ -206,11 +177,11 @@ QList<TrackInfo*> SC68Helper::createPlayList(TrackInfo::Parts parts)
             info->setValue(Qmmp::SAMPLERATE, sampleRate());
             info->setValue(Qmmp::CHANNELS, channels());
             info->setValue(Qmmp::BITS_PER_SAMPLE, depth());
-            info->setValue(Qmmp::FORMAT_NAME, "SC68");
+            info->setValue(Qmmp::FORMAT_NAME, "SC68 Amiga");
         }
 
         info->setPath("sc68://" + cleanPath() + QString("#%1").arg(i));
-        info->setDuration(ti.trk.time_ms > 0 ? ti.trk.time_ms : (2 * 60));
+        info->setDuration(tag.trk.time_ms > 0 ? tag.trk.time_ms : (2 * 60));
         playlist << info;
     }
     return playlist;

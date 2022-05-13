@@ -4,9 +4,16 @@
 
 #include <QMessageBox>
 
-bool DecoderSC68Factory::canDecode(QIODevice *) const
+bool DecoderSC68Factory::canDecode(QIODevice *input) const
 {
-    return false;
+    QFile *file = static_cast<QFile*>(input);
+    if(!file)
+    {
+        return false;
+    }
+
+    SC68Helper helper(file->fileName());
+    return helper.initialize();
 }
 
 DecoderProperties DecoderSC68Factory::properties() const
@@ -14,9 +21,9 @@ DecoderProperties DecoderSC68Factory::properties() const
     DecoderProperties properties;
     properties.name = tr("SC68 Plugin");
     properties.shortName = "sc68";
-    properties.filters << "*.sc68";
+    properties.filters << "*.sc68" << "*.snd" << "*.sndh";
     properties.description = "Atari ST(E) And Amiga Audio File";
-    properties.protocols << "sc68";
+    properties.protocols << "file" << "sc68";
     properties.noInput = true;
     return properties;
 }
@@ -27,7 +34,7 @@ Decoder *DecoderSC68Factory::create(const QString &path, QIODevice *input)
     return new DecoderSC68(path);
 }
 
-QList<TrackInfo*> DecoderSC68Factory::createPlayList(const QString &path, TrackInfo::Parts parts, QStringList *ignoredFiles)
+QList<TrackInfo*> DecoderSC68Factory::createPlayList(const QString &path, TrackInfo::Parts parts, QStringList *ignoredPaths)
 {
     if(path.contains("://")) //is it one track?
     {
@@ -36,7 +43,7 @@ QList<TrackInfo*> DecoderSC68Factory::createPlayList(const QString &path, TrackI
         filePath.remove(QRegExp("#\\d+$"));
 
         const int track = path.section("#", -1).toInt();
-        QList<TrackInfo*> playlist = createPlayList(filePath, parts, ignoredFiles);
+        QList<TrackInfo*> playlist = createPlayList(filePath, parts, ignoredPaths);
         if(playlist.isEmpty() || track <= 0 || track > playlist.count())
         {
             qDeleteAll(playlist);
@@ -51,9 +58,9 @@ QList<TrackInfo*> DecoderSC68Factory::createPlayList(const QString &path, TrackI
     }
     else
     {
-        if(ignoredFiles)
+        if(ignoredPaths)
         {
-            ignoredFiles->push_back(path);
+            ignoredPaths->push_back(path);
         }
     }
 
