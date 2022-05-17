@@ -87,9 +87,9 @@ void DecoderSC68Factory::showSettings(QWidget *parent)
 
 void DecoderSC68Factory::showAbout(QWidget *parent)
 {
-    QMessageBox::about (parent, tr("About SC68 Reader Plugin"),
-                        tr("Qmmp SC68 Reader Plugin")+"\n"+
-                        tr("Written by: Greedysky <greedysky@163.com>"));
+    QMessageBox::about(parent, tr("About SC68 Reader Plugin"),
+                       tr("Qmmp SC68 Reader Plugin") + "\n" +
+                       tr("Written by: Greedysky <greedysky@163.com>"));
 }
 
 QString DecoderSC68Factory::translation() const
