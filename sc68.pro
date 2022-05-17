@@ -90,5 +90,4 @@ DEFINES += HAVE_STDLIB_H \
 unix {
     target.path = $$PLUGIN_DIR/Input
     INSTALLS += target
-    QMAKE_CLEAN = $$PLUGINS_PREFIX/Input/libsc68.so
 }
