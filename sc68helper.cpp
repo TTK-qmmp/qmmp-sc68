@@ -193,7 +193,7 @@ QString SC68Helper::cleanPath() const
     if(m_path.contains("://"))
     {
         path.remove("sc68://");
-        path.remove(QRegExp("#\\d+$"));
+        path.remove(RegularExpression("#\\d+$"));
     }
     return path;
 }
