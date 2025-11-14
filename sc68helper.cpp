@@ -189,11 +189,29 @@ QList<TrackInfo*> SC68Helper::createPlayList(TrackInfo::Parts parts)
 
 QString SC68Helper::cleanPath() const
 {
-    QString path = m_path;
-    if(m_path.contains("://"))
+    return m_path.contains("://") ? SC68Helper::pathFromUrl(m_path) : m_path;
+}
+
+QString SC68Helper::pathFromUrl(const QString &url, int *track)
+{
+    QString path = url;
+    int index = path.indexOf("://");
+    if(index > 0)
+        path.remove(0, index + 3);
+
+    QString trackStr = path.section(QLatin1Char('#'), -1);
+    bool ok = false;
+    int t = trackStr.toInt(&ok);
+    if(ok)
     {
-        path.remove("sc68://");
-        path.remove(RegularExpression("#\\d+$"));
+        if(track)
+            *track = t;
+
+        index = path.lastIndexOf(QLatin1Char('#'));
+        path.remove(index, path.size() - index);
     }
+    else if(track)
+        *track = -1;
+
     return path;
 }
