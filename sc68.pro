@@ -8,11 +8,13 @@ greaterThan(QT_MAJOR_VERSION, 5){
 
 HEADERS += decodersc68factory.h \
            decoder_sc68.h \
-           sc68helper.h
+           sc68helper.h \
+           sc68metadatamodel.h
 
 SOURCES += decodersc68factory.cpp \
            decoder_sc68.cpp \
            sc68helper.cpp \
+           sc68metadatamodel.cpp \
            libsc68/file68/src/gzip68.c \
            libsc68/file68/src/vfs68.c \
            libsc68/file68/src/ice68.c \

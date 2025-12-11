@@ -1,6 +1,7 @@
 #include "decodersc68factory.h"
 #include "sc68helper.h"
 #include "decoder_sc68.h"
+#include "sc68metadatamodel.h"
 
 #include <QMessageBox>
 
@@ -67,9 +68,8 @@ QList<TrackInfo*> DecoderSC68Factory::createPlayList(const QString &path, TrackI
 
 MetaDataModel* DecoderSC68Factory::createMetaDataModel(const QString &path, bool readOnly)
 {
-    Q_UNUSED(path);
     Q_UNUSED(readOnly);
-    return nullptr;
+    return new SC68MetaDataModel(path);
 }
 
 #if (QMMP_VERSION_INT < 0x10700) || (0x20000 <= QMMP_VERSION_INT && QMMP_VERSION_INT < 0x20200)
