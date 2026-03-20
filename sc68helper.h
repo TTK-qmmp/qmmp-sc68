@@ -26,6 +26,12 @@ extern "C" {
 #include <libsc68/sc68/sc68.h>
 }
 
+#if QMMP_VERSION_INT < 0x20400
+using TrackInfoList = QList<TrackInfo*>;
+#else
+using TrackInfoList = QList<TrackInfo>;
+#endif
+
 /*!
  * @author Greedysky <greedysky@163.com>
  */
@@ -52,7 +58,7 @@ public:
     inline QString ripper() const { return m_ripper; }
     inline QString converter() const { return m_converter; }
 
-    QList<TrackInfo*> createPlayList(TrackInfo::Parts parts);
+    TrackInfoList createPlayList(TrackInfo::Parts parts);
     QString cleanPath() const;
 
     /*!
