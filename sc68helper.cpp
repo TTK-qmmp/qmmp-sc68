@@ -31,7 +31,7 @@ bool SC68Helper::initialize()
 
     if(sc68_load_uri(m_input, qPrintable("file://" + cleanPath())))
     {
-        qWarning("SC68Helper: unable to open file");
+        qWarning("SC68Helper: unable to open file, %s", qPrintable(cleanPath()));
         return false;
     }
 
