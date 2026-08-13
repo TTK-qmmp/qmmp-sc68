@@ -1,4 +1,4 @@
-This is a plugin for Qmmp (1.6.0 or greater) which supports SC68 file.
+This is an inut plugin for Qmmp (1.6.0 or later) that supports SC68 files.
 
 Based on [SC68](https://sourceforge.net/projects/sc68) (Atari ST(E) And Amiga Audio).
 
