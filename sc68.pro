@@ -93,6 +93,8 @@ DEFINES += HAVE_STDLIB_H \
            EMU68_EXPORT \
            USE_UNICE68
 
+unix:DEFINES += HAVE_LIBGEN_H
+
 #CONFIG += BUILD_PLUGIN_INSIDE
 contains(CONFIG, BUILD_PLUGIN_INSIDE){
     include($$PWD/../../plugins.pri)
